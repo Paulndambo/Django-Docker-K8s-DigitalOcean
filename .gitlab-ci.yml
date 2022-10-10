@@ -29,11 +29,9 @@ build-dev:
     - development
 
 
-
 test:
   stage: test
   image: $CONTAINER_IMAGE
-  
   script:
   # adding of --settings=c2s.settings.test doesn't have impact now due to manage.py logic
   - echo "Running migration"
@@ -43,4 +41,27 @@ test:
   only:
   - development
 
+
+deploy-dev:
+  stage: deploy
+  image: $CONTAINER_IMAGE
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "This is the deploy dev stage!!"
+  only:
+    - development
+  when: manual
+
+
+deploy-prod:
+  stage: deploy
+  image: $CONTAINER_IMAGE
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "This is the deploy prod stage!!"
+  only:
+    - development
+  when: manual
 
