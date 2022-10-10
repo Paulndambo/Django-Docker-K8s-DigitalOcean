@@ -8,19 +8,36 @@ stages:
     - test
     - deploy
 
+variables:
+  USERNAME: $CI_REGISTRY_USER
+  PASSWORD: CI_REGISTRY_PASSWORD
+  REGISTRY: CI_REGISTRY
+  CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
 
 build-dev:
   stage: build
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    - docker build --pull -t $CONTAINER_IMAGE .
+    - docker push $CONTAINER_IMAGE
 
-    - echo $CI_REGISTRY:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    - echo $CONTAINER_IMAGE
 
-  #when: manual
   allow_failure: true
   only:
     - development
+
+test-build:
+  image: $CONTAINER_IMAGE
+  script:
+    - docker run -p 8000:8000 $CONTAINER_IMAGE
+    - apk add curl
+    - sleep 10
+    - curl http://localhost:8000 && grep "The install worked successfully! Congratulations!"
+  allow_failure: true
+  when: manual
+  only:
+    - development
+
 
