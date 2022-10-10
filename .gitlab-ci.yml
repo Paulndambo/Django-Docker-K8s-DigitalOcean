@@ -9,11 +9,11 @@ stages:
     - deploy
 
 variables:
-    IMAGE_NAME: django-docker-k8s-gitlab-digitalocean
+    IMAGE_NAME: django-docker-k8s-gitlab-digitalocean 
 
 build:
     stage: build
     script:
-        - docker build -t $IMAGE_NAME
+        - docker build -t $IMAGE_NAME .
         - echo "Image Building Completed Successfully"
 
