@@ -13,9 +13,7 @@ variables:
   PASSWORD: CI_REGISTRY_PASSWORD
   REGISTRY: CI_REGISTRY
   CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
-  DOCKER_HOST: tcp://localhost:2375
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
+
 
 build-dev:
   stage: build
@@ -23,7 +21,6 @@ build-dev:
     - echo "Wait for Docker daemon at tcp://localhost:2375"
     - while ! nc -z localhost 2375; do sleep 0.1; done
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    
   script:
     - docker build --pull -t $CONTAINER_IMAGE .
     - docker push $CONTAINER_IMAGE
@@ -33,22 +30,19 @@ build-dev:
   only:
     - development
 
-test-build:
+
+
+test:
+  stage: test
   image: $CONTAINER_IMAGE
-  before_script:
-    - echo "Wait for Docker daemon at tcp://localhost:2375"
-    - while ! nc -z localhost 2375; do sleep 0.1; done
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-  services:
-    - docker:dind
+  
   script:
-    - docker run -p 8000:8000 $CONTAINER_IMAGE
-    - apk add curl
-    - sleep 10
-    - curl http://localhost:8000 && grep "The install worked successfully! Congratulations!"
-  allow_failure: true
-  when: manual
+  # adding of --settings=c2s.settings.test doesn't have impact now due to manage.py logic
+  - echo "Running migration"
+  - python manage.py migrate 
+  - echo "Starting django test..."
+  - python manage.py test 
   only:
-    - development
+  - development
 
 
