@@ -47,7 +47,7 @@ deploy-test:
     entrypoint: ['']
   script:
     - kubectl config get-contexts
-    - kubectl config use-context ./agents/agent/Django-Docker-K8s-DigitalOcean:primary-agent
+    - kubectl config use-context do-ams3-kadabo-devops
     - kubectl get pods
   when: manual
 
