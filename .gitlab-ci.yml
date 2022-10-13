@@ -41,6 +41,7 @@ test:
   only:
   - development
 
+
 deploy-test:
   image:
     name: bitnami/kubectl:latest
@@ -48,7 +49,7 @@ deploy-test:
   script:
     - kubectl config get-contexts
     - kubectl config use-context paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
-    - kubectl apply -f k8s/deployments.yaml -f k8s/services.yaml
+    - kubectl delete -f k8s/deployments.yaml -f k8s/services.yaml
     - kubectl get pods
   when: manual
 
