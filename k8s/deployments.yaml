@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: hello-k8s
-        image: 40781998/hello-world
+        image: 40781998/hello-world:latest
         resources:
           limits:
             memory: "128Mi"
