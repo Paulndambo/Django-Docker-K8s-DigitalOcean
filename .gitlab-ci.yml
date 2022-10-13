@@ -41,6 +41,16 @@ test:
   only:
   - development
 
+deploy-test:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context ./agents/agent/Django-Docker-K8s-DigitalOcean:primary-agent
+    - kubectl get pods
+  when: manual
+
 
 deploy-dev:
   stage: deploy
