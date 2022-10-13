@@ -47,8 +47,8 @@ deploy-test:
     entrypoint: ['']
   script:
     - kubectl config get-contexts
-    - kubectl config use-context do-ams3-kadabo-devops
-    - kubectl get pods
+    #- kubectl config use-context do-ams3-kadabo-devops
+    #- kubectl get pods
   when: manual
 
 
