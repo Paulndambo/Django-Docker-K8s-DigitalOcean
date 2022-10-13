@@ -48,7 +48,7 @@ deploy-test:
   script:
     - kubectl config get-contexts
     - kubectl config use-context paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
-    - kubectl apply -f k8s/developments.yaml -f k8s/services.yaml
+    - kubectl apply -f k8s/deployments.yaml -f k8s/services.yaml
     - kubectl get pods
   when: manual
 
