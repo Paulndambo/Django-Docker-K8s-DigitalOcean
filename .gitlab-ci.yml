@@ -15,7 +15,7 @@ variables:
   CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
 
 
-build-dev:
+.build-dev:
   stage: build
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
@@ -29,7 +29,7 @@ build-dev:
     - development
 
 
-test:
+.test:
   stage: test
   image: $CONTAINER_IMAGE
   script:
@@ -48,7 +48,7 @@ deploy-test:
   script:
     - kubectl config get-contexts
     - kubectl config use-context paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
-    - kubectl apply -f k8s/deployments.yaml -f k8s/services.yaml
+    - kubectl delete -f k8s/deployments.yaml -f k8s/services.yaml
     - kubectl get pods
   when: manual
 
