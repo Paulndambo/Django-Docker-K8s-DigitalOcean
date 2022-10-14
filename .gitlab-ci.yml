@@ -60,16 +60,14 @@ deploy-test:
   when: manual
 
 
-rollback-deploy-test:
+deploy-rollback:
   stage: rollback
   image: bitnami/kubectl
-  rules:
-      when: manual
   before_script:
-    - kubectl config use-context $KUBE_CONTEXT
+    - kubectl use-context $KUBE_CONTEXT
   script:
-    - kubectl rollout undo django-digitalocalocean-k8s
-
+    - kubectl rollout undo $DEPLOYMENT
+  when: manual
 
 
 deploy-dev:
