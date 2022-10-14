@@ -13,6 +13,8 @@ variables:
   PASSWORD: CI_REGISTRY_PASSWORD
   REGISTRY: CI_REGISTRY
   CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+  KUBE_CONTEXT: paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
+  DEPLOYMENT: django-digitalocalocean-k8s
 
 
 build-dev:
@@ -46,13 +48,27 @@ deploy-test:
   image:
     name: bitnami/kubectl:latest
     entrypoint: ['']
+  before_script:
+    - kubectl config use-context $KUBE_CONTEXT
   script:
-    - kubectl config get-contexts
-    - kubectl config use-context paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
-    - kubectl create deployment django-digitalocalocean-k8s --image=$CONTAINER_IMAGE
-    - kubectl expose deployment django-digitalocalocean-k8s --type=LoadBalancer --port=8000
+    #- kubectl config get-contexts
+    - kubectl set image deployment django-digitalocalocean-k8s django-digitalocalocean-k8s=$CONTAINER_IMAGE
+    #- kubectl create deployment django-digitalocalocean-k8s --image=$CONTAINER_IMAGE
+    #- kubectl expose deployment django-digitalocalocean-k8s --type=LoadBalancer --port=8000
     - kubectl get pods
   when: manual
+
+
+rollback-deploy-test:
+  stage: rollback
+  image: bitnami/kubectl
+  rules:
+      when: manual
+  before_script:
+    - kubectl config use-context $KUBE_CONTEXT
+  script:
+    - kubectl rollout undo django-digitalocalocean-k8s
+
 
 
 deploy-dev:
