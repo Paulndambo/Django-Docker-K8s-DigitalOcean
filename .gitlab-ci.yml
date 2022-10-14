@@ -64,7 +64,7 @@ deploy-test:
 deploy-rollback:
   stage: rollback
   image: bitnami/kubectl:latest
-  entrypoint: ['']
+  #entrypoint: ['']
   before_script:
     - kubectl use-context $KUBE_CONTEXT
   script:
