@@ -9,6 +9,7 @@ stages:
     - deploy
     - rollback
 
+
 variables:
   USERNAME: $CI_REGISTRY_USER
   PASSWORD: CI_REGISTRY_PASSWORD
@@ -62,11 +63,12 @@ deploy-test:
 
 deploy-rollback:
   stage: rollback
-  image: bitnami/kubectl
+  image: bitnami/kubectl:latest
+  entrypoint: ['']
   before_script:
     - kubectl use-context $KUBE_CONTEXT
   script:
-    - kubectl rollout undo $DEPLOYMENT
+    - kubectl rollout undo deployment/django-digitalocalocean-k8s --to-revision=2
   when: manual
 
 
