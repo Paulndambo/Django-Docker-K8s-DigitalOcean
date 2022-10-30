@@ -1,0 +1,97 @@
+default:
+  image: docker:latest
+  services:
+    - docker:dind
+    
+stages:
+    - build
+    - test
+    - deploy
+    - rollback
+
+
+variables:
+  USERNAME: $CI_REGISTRY_USER
+  PASSWORD: CI_REGISTRY_PASSWORD
+  REGISTRY: CI_REGISTRY
+  CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+  KUBE_CONTEXT: paulkadabo/Django-Docker-K8s-DigitalOcean:primary-agent
+  DEPLOYMENT: django-digitalocalocean-k8s
+
+
+build-dev:
+  stage: build
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t $CONTAINER_IMAGE .
+    - docker push $CONTAINER_IMAGE
+
+    - echo $CONTAINER_IMAGE
+  allow_failure: true
+  only:
+    - development
+
+
+test:
+  stage: test
+  image: $CONTAINER_IMAGE
+  script:
+  # adding of --settings=c2s.settings.test doesn't have impact now due to manage.py logic
+  - echo "Running migration"
+  - python manage.py migrate 
+  - echo "Starting django test..."
+  - python manage.py test 
+  only:
+  - development
+
+
+deploy-test:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  before_script:
+    - kubectl config use-context $KUBE_CONTEXT
+  script:
+    #- kubectl config get-contexts
+    - kubectl set image deployment django-digitalocalocean-k8s django-docker-k8s-gitlab-digitalocean=$CONTAINER_IMAGE
+    #- kubectl create deployment django-digitalocalocean-k8s --image=$CONTAINER_IMAGE
+    #- kubectl expose deployment django-digitalocalocean-k8s --type=LoadBalancer --port=8000
+    - kubectl get pods
+  when: manual
+
+
+deploy-rollback:
+  stage: rollback
+  image: bitnami/kubectl:latest
+  #entrypoint: ['']
+  before_script:
+    - kubectl use-context $KUBE_CONTEXT
+  script:
+    - kubectl rollout undo deployment/django-digitalocalocean-k8s --to-revision=2
+  when: manual
+
+
+deploy-dev:
+  stage: deploy
+  image: $CONTAINER_IMAGE
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "This is the deploy dev stage!!"
+  only:
+    - development
+  when: manual
+
+
+deploy-prod:
+  stage: deploy
+  image: $CONTAINER_IMAGE
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "This is the deploy prod stage!!"
+  only:
+    - development
+  when: manual
+

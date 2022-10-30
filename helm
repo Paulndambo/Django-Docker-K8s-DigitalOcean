@@ -1,0 +1,8 @@
+helm repo add gitlab https://charts.gitlab.io
+helm repo update
+helm upgrade --install primary-agent gitlab/gitlab-agent \
+    --namespace gitlab-agent \
+    --create-namespace \
+    --set image.tag=v15.4.0 \
+    --set config.token=ysXRuWsHZyve_TcTy6HcLWrkHhCses1oeytEjVyASB5y2D5Ujw \
+    --set config.kasAddress=wss://kas.gitlab.com
